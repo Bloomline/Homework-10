@@ -173,81 +173,156 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 </script>
 </body>
-    <script>
+<script>
+let xEyeL, xEyeR, yMouth, yNose;      // Eyes/mouth/nose movement
+let xBrow, yBrow;                     // Diagonal movement
+let xEyeLSpeed, xEyeRSpeed, yMouthSpeed, yNoseSpeed, xBrowSpeed, yBrowSpeed;
+let titleSize, titleStep, titleUp, titleCycles;
+
 function setup() {
-  // Create canvas and attach to the "portrait" div
   let cnv = createCanvas(400, 500);
   cnv.parent("portrait");
+  // Initial positions
+  xEyeL = 170;
+  xEyeR = 230;
+  yMouth = 210;
+  yNose = 207;
+  xBrow = 165;
+  yBrow = 150; 
+
+  // Random speeds (different for each)
+  xEyeLSpeed = random(1.3, 2.3);
+  xEyeRSpeed = random(1.0, 2.0);
+  yMouthSpeed = random(1.5, 2.7);
+  yNoseSpeed = random(1.2, 2.2);
+  xBrowSpeed = random(1.1, 2.4);
+  yBrowSpeed = random(1.2, 2.2);
+
+  // Title animation
+  titleSize = 24;
+  titleStep = 1.3;
+  titleUp = true;
+  titleCycles = 0;
+}
+
+function draw() {
   background(28, 22, 42);
 
-  // --- Face (ellipse) ---
+  // MOVING SHAPES
+
+  // Eyes move along x
+  xEyeL += xEyeLSpeed;
+  xEyeR -= xEyeRSpeed;
+  if (xEyeL > 185 || xEyeL < 155) xEyeLSpeed *= -1;
+  if (xEyeR > 245 || xEyeR < 215) xEyeRSpeed *= -1;
+
+  // Mouth moves up/down (y)
+  yMouth += yMouthSpeed;
+  if (yMouth > 225 || yMouth < 205) yMouthSpeed *= -1;
+
+  // Nose moves up/down (y)
+  yNose += yNoseSpeed;
+  if (yNose > 217 || yNose < 197) yNoseSpeed *= -1;
+
+  // Eyebrow moves diagonally (x and y)
+  xBrow += xBrowSpeed;
+  yBrow += yBrowSpeed;
+  if (xBrow > 185 || xBrow < 150) xBrowSpeed *= -1;
+  if (yBrow > 170 || yBrow < 140) yBrowSpeed *= -1;
+
+  // FACE BASE
   fill(220, 200, 165);
   noStroke();
-  ellipse(200, 180, 140, 180); // face
+  ellipse(200, 180, 140, 180);
 
-  // --- Eyes (circles) ---
+  // EYES 
   fill(50, 70, 130);
-  ellipse(170, 170, 28, 28); // left eye
-  ellipse(230, 170, 28, 28); // right eye
+  ellipse(xEyeL, 170, 28, 28);
+  ellipse(xEyeR, 170, 28, 28);
   fill(255);
-  ellipse(175, 175, 7, 7); // left eye sparkle
-  ellipse(235, 175, 7, 7); // right eye sparkle
+  ellipse(xEyeL + 5, 175, 7, 7);
+  ellipse(xEyeR + 5, 175, 7, 7);
 
-  // --- Glasses (rects & lines) ---
+  // GLASSES 
   stroke(120, 180, 240);
   strokeWeight(3);
   noFill();
-  rect(155, 158, 40, 30, 8); // left lens
-  rect(205, 158, 40, 30, 8); // right lens
-  line(195, 172, 205, 172); // bridge
+  rect(155, 158, 40, 30, 8);
+  rect(205, 158, 40, 30, 8);
+  line(195, 172, 205, 172);
 
-  // --- Smile (arc as line) ---
+  // BROWS
+  stroke(60, 40, 20);
+  strokeWeight(6);
+  line(xBrow, yBrow, xBrow+30, yBrow+7);
+
+  // SMILE 
   stroke(80, 40, 80);
   strokeWeight(3);
   noFill();
-  arc(200, 210, 60, 30, 0, PI);
+  arc(200, yMouth, 60, 30, 0, PI);
 
-  // --- Hair (triangle) ---
+  // HAIR
   noStroke();
   fill(55, 37, 20);
-  triangle(200, 85, 130, 170, 270, 170); // main bang
+  triangle(200, 85, 130, 170, 270, 170);
 
-  // --- Ears (rects) ---
+  // EARS
   fill(220, 200, 165);
   rect(120, 180, 20, 38, 12);
   rect(260, 180, 20, 38, 12);
 
-  // --- Nose (line + ellipse) ---
+  // NOSE
   stroke(140, 90, 80);
   strokeWeight(2);
-  line(200, 185, 200, 205);
+  line(200, 185, 200, yNose-2);
   noStroke();
   fill(210, 180, 150);
-  ellipse(200, 207, 20, 10);
+  ellipse(200, yNose, 20, 10);
 
-  // --- Freckles (points) ---
+  // FRECKLES
   stroke(170, 120, 80);
   strokeWeight(5);
   point(190, 215);
   point(210, 215);
   point(200, 220);
 
-  // --- Shoulders (rects) ---
+  // SHOULDERS
   noStroke();
   fill(75, 95, 180);
   rect(120, 300, 160, 50, 24);
 
-  // --- Title and Signature (text) ---
+  // TITLE ANIMATION
+  if (titleUp) {
+    titleSize += titleStep;
+    if (titleSize >= 44) {
+      titleCycles++;
+      if (titleCycles >= 5) {
+        titleUp = false;
+        titleCycles = 0;
+      }
+    }
+  } else {
+    titleSize -= titleStep;
+    if (titleSize <= 24) {
+      titleCycles++;
+      if (titleCycles >= 5) {
+        titleUp = true;
+        titleCycles = 0;
+      }
+    }
+  }
   fill(255, 202, 255);
   noStroke();
-  textSize(24);
+  textSize(titleSize);
   textAlign(CENTER);
   text("Self Portrait: Kyle Hansen", 200, 370);
 
+  //SIGNATURE
   fill(135, 249, 255);
   textSize(18);
   textAlign(RIGHT);
-  text("Kyle Hansen", 390, 490); // Signature
+  text("Kyle Hansen", 390, 490);
 }
 </script>
 </html>
